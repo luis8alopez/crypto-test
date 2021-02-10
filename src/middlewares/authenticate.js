@@ -3,7 +3,6 @@ const { JWT_KEY } = require('../../config/config');
 
 exports.verify = (req, res, next) => {
     const token = req.headers.authorization;
-    console.log("autho", token, JWT_KEY);
 
     if (!token) {
         return res.status(401).end()
@@ -11,7 +10,6 @@ exports.verify = (req, res, next) => {
 
     let payload
     try {
-        console.log(`token: ${token} y key: ${JWT_KEY}`);
         payload = jwt.verify(token, JWT_KEY)
     } catch (e) {
         if (e instanceof jwt.JsonWebTokenError) {
@@ -22,5 +20,6 @@ exports.verify = (req, res, next) => {
         return res.status(400).end()
     }
     console.log("Username ", payload.username);
+    req.user = payload.username;
     next();
 }

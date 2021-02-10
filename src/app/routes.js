@@ -1,11 +1,15 @@
 const { Router } = require('express');
 const cryptoRouter = require('./crypto/route');
+const userRouter = require('./users/route');
+const cryptoRouter2 = require('./cryptoxuser/route')
 
 let router = new Router();
 
 
 router.use('/', cryptoRouter)
-//router.use('/api/v1', cryptoRouter);
+router.use('/users', userRouter);
+router.use('/crypto', cryptoRouter2);
+
 
 //Login
 //Create User

@@ -7,7 +7,7 @@ const {
     JWT_TTL
 } = process.env;
 
-const MONGODB_OPTIONS = { useNewUrlParser: true, useFindAndModify: false, useUnifiedTopology: true };
+const MONGODB_OPTIONS = { useNewUrlParser: true, useFindAndModify: false, useUnifiedTopology: true, useCreateIndex: true };
 const morganMode = process.env.DEV ? 'dev' : 'tiny';
 
 module.exports = {

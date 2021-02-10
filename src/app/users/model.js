@@ -1,11 +1,11 @@
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
-    "nombre": {
+    "name": {
         type: String,
         required: true
     },
-    "apellido": {
+    "lastname": {
         type: String,
         required: true
     },
@@ -14,14 +14,15 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    "contraseña": {
+    "password": {
         type: String,
         required: true,
-        validate: passwordValidator
+        //validate: passwordValidator
     },
-    "moneda": {
+    "preferredCoin": {
         type: String,
-        required: true
+        required: true,
+        enum: ['ars', 'usd', 'eur']
     }
 });
 

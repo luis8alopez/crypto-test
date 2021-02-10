@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const cryptoPerUserSchema = new mongoose.Schema({
-    "username_id": {
+    "User": {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
     },
