@@ -1,16 +1,17 @@
 const jwt = require("jsonwebtoken");
-const { JWT_KEY, JWT_TTL } = require('../../../config/config')
+const { JWT_KEY, JWT_TTL } = require('../../../config/config');
+const User = require('../users/model');
 
-exports.signIn = (req, res) => {
+exports.signIn = async (req, res) => {
     const { username, password } = req.body
-    //Petición a mongo
-    if (!username || !password) {
+    const user = await User.findOne({ username: username, password: password });
+    if (!user) {
         // return 401 error is username or password doesn't exist, or if password does
         return res.status(401).end()
     }
 
     // Create a new token with the username in the payload
-    const token = jwt.sign({ username }, JWT_KEY, {
+    const token = jwt.sign({ username, coin: user.preferredCoin }, JWT_KEY, {
         algorithm: "HS256",
         expiresIn: JWT_TTL,
     })

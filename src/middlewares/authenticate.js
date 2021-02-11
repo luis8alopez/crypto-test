@@ -21,5 +21,6 @@ exports.verify = (req, res, next) => {
     }
     console.log("Username ", payload.username);
     req.user = payload.username;
+    req.coin = payload.coin;
     next();
 }
