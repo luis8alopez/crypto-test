@@ -17,7 +17,8 @@ const userSchema = new mongoose.Schema({
     "password": {
         type: String,
         required: true,
-        //validate: passwordValidator
+        minlength: 8,
+        match: /\w/
     },
     "preferredCoin": {
         type: String,

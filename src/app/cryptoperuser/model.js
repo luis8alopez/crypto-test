@@ -7,7 +7,8 @@ const cryptoPerUserSchema = new mongoose.Schema({
     },
     "idCrypto": {
         type: [String],
-        required: true
+        required: true,
+        maxItems: 24
     }
 });
 

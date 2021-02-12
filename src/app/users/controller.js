@@ -11,7 +11,7 @@ exports.createUser = async (req, res) => {
         return res.status(httpStatus.OK).send({ message: "User created successfully" })
 
     } catch (error) {
-        return res.status(httpStatus.INTERNAL_SERVER_ERROR).send({ message: "Internal server error", error: error })
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).send({ message: "Internal server error", error: error.message })
     }
 }
 
@@ -24,6 +24,6 @@ exports.signIn = async (req, res) => {
         return res.status(httpStatus.OK).send({ message: "Log successful", token: response })
 
     } catch (error) {
-        return res.status(httpStatus.INTERNAL_SERVER_ERROR).send({ message: "Internal server error", error: error })
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).send({ message: "Internal server error", error: error.message })
     }
 }

@@ -29,45 +29,43 @@ exports.addCoinForFollowUp = async (username, coin) => {
 
 exports.topCryptos = async (username) => {
 
-    const user = await User.findOne({ username: username });
-    if (user) {
-        let cryptoUser;
-        try {
-            cryptoUser = await cryptoPerUser.findOne({ User: user._id });
-        } catch (error) {
-            throw new Error('Error Accessing Database');
-        }
-        if (cryptoUser == null) {
-            return;
-        } else {
-            const coinInfo = [];
-            for (const [index, element] of cryptoUser.idCrypto) {
-                if (index <= 25) {
-                    try {
-                        const response = await axios.get(`https://api.coingecko.com/api/v3/coins/${element}`, {
-                            params: {
-                                tickers: false,
-                                market_data: true,
-                                community_data: false,
-                                developer_data: false,
-                                sparkline: false
-                            }
-                        });
-                        const { name, symbol, image: { thumb }, market_data: { current_price }, last_updated } = response.data;
-                        const { ars, eur, usd } = current_price;
-                        coinInfo.push({ name, symbol, thumb, ars, eur, usd, last_updated });
-                    } catch (error) {
-                        throw new Error('Error making API call to CoinGecko');
-                    }
-                } else {
-                    console.log("Maximux amount of coins, sorry");
-                }
-            }
-            coinInfo.sort((a, b) => (a.ars > b.ars) ? -1 : 1);
-            return coinInfo
-        }
+    let user;
+    let cryptoUser;
+
+    try {
+        user = await User.findOne({ username: username });
+        cryptoUser = await cryptoPerUser.findOne({ User: user._id });
+    } catch (error) {
+        throw new Error('Error: Accessing Database');
+    }
+    if (cryptoUser == null) {
+        return;
     } else {
-        throw new Error('No user found');
+        const coinInfo = [];
+        for (const [index, element] of cryptoUser.idCrypto) {
+            if (index <= 25) {
+                try {
+                    const response = await axios.get(`https://api.coingecko.com/api/v3/coins/${element}`, {
+                        params: {
+                            tickers: false,
+                            market_data: true,
+                            community_data: false,
+                            developer_data: false,
+                            sparkline: false
+                        }
+                    });
+                    const { name, symbol, image: { thumb }, market_data: { current_price }, last_updated } = response.data;
+                    const { ars, eur, usd } = current_price;
+                    coinInfo.push({ name, symbol, thumb, ars, eur, usd, last_updated });
+                } catch (error) {
+                    throw new Error('Error: making API call to CoinGecko');
+                }
+            } else {
+                console.log("Maximux amount of coins, sorry");
+            }
+        }
+        coinInfo.sort((a, b) => (a.ars > b.ars) ? -1 : 1);
+        return coinInfo
     }
 }
 
