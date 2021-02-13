@@ -1,93 +1,88 @@
 const cryptoPerUser = require('./model');
 const User = require('../users/model');
-const axios = require('axios')
+const { API_URL } = require('../../../config/config');
+const axios = require('axios');
 
 exports.addCoinForFollowUp = async (username, coin) => {
 
     try {
+        const response = await axios.get(`${API_URL}/coins/${coin}`);
+        if (!response.data) {
+            throw new Error("Unable to find coin");
+        }
         const user = await User.findOne({ username: username });
-        if (user) {
-            const cryptoUser = await cryptoPerUser.findOne({ User: user._id });
-            if (cryptoUser == null) {
-                const newcryptoPerUser = new cryptoPerUser({ User: user._id, idCrypto: coin });
-                return await newcryptoPerUser.save();
-            } else {
-                const res = await cryptoUser.updateOne({ $addToSet: { idCrypto: coin } })
-                if (res.nModified == 0) {
-                    return;
-                }
-                return res;
-            }
+        if (!user) {
+            throw new Error("Unable to find your user")
+        }
+        const cryptoUser = await cryptoPerUser.findOne({ User: user._id });
+        if (!cryptoUser) {
+            const newcryptoPerUser = new cryptoPerUser({ User: user._id, idCrypto: coin });
+            return await newcryptoPerUser.save();
         } else {
-            return;
+            const res = await cryptoUser.updateOne({ $addToSet: { idCrypto: coin } })
+            if (res.nModified === 0) {
+                throw new Error("You already follow this coin");
+            }
+            return res;
         }
     } catch (error) {
-        console.log("error ", error);
-        return;
+        throw error;
     }
 }
 
-exports.topCryptos = async (username) => {
-
-    let user;
-    let cryptoUser;
+exports.topCryptos = async (username, limit) => {
 
     try {
-        user = await User.findOne({ username: username });
-        cryptoUser = await cryptoPerUser.findOne({ User: user._id });
-    } catch (error) {
-        throw new Error('Error: Accessing Database');
-    }
-    if (cryptoUser == null) {
-        return;
-    } else {
-        const coinInfo = [];
-        for (const [index, element] of cryptoUser.idCrypto) {
-            if (index <= 25) {
-                try {
-                    const response = await axios.get(`https://api.coingecko.com/api/v3/coins/${element}`, {
-                        params: {
-                            tickers: false,
-                            market_data: true,
-                            community_data: false,
-                            developer_data: false,
-                            sparkline: false
-                        }
-                    });
-                    const { name, symbol, image: { thumb }, market_data: { current_price }, last_updated } = response.data;
-                    const { ars, eur, usd } = current_price;
-                    coinInfo.push({ name, symbol, thumb, ars, eur, usd, last_updated });
-                } catch (error) {
-                    throw new Error('Error: making API call to CoinGecko');
-                }
-            } else {
-                console.log("Maximux amount of coins, sorry");
-            }
+        const user = await User.findOne({ username: username });
+        const cryptoUser = await cryptoPerUser.findOne({ User: user._id });
+
+        if (!cryptoUser) {
+            throw new Error("Accessing the database");
         }
-        coinInfo.sort((a, b) => (a.ars > b.ars) ? -1 : 1);
-        return coinInfo
+
+        if (limit > 25) {
+            throw new Error("Top limit reached");
+        }
+
+        const coinInfo = await Promise.all(cryptoUser.idCrypto.map(async (element) => {
+            const response = await axios.get(`${API_URL}/coins/${element}`, {
+                params: {
+                    tickers: false,
+                    market_data: true,
+                    community_data: false,
+                    developer_data: false,
+                    sparkline: false
+                }
+            });
+            const {
+                name, symbol, image: { thumb }, market_data: { current_price }, last_updated
+            } = response.data;
+            const { ars, eur, usd } = current_price;
+            return { name, symbol, thumb, ars, eur, usd, last_updated }
+        }));
+        return coinInfo.sort((a, b) => (a.ars > b.ars) ? -1 : 1);
+    } catch (error) {
+        throw error
     }
 }
 
 exports.getAllCoins = async (username, coin) => {
-    const allCoins = [];
-    const preferredCoin = coin;
+
     try {
-        const response = await axios.get(`https://api.coingecko.com/api/v3/coins/markets`, {
+        const response = await axios.get(`${API_URL}/coins/markets`, {
             params: {
-                vs_currency: preferredCoin,
+                vs_currency: coin,
                 order: "market_cap_desc",
                 per_page: 100,
                 sparkline: false
             }
         });
 
-        for (const [index, element] of Object.entries(response.data)) {
-            const { symbol, name, image, current_price, last_updated } = element;
-            allCoins.push({ symbol, name, image, current_price, last_updated })
-        }
-        return allCoins;
+        return response.data.map(element => {
+            const { name, symbol, image, current_price, last_updated } = element;
+            return { name, symbol, image, current_price, last_updated };
+        });
     } catch (error) {
-        throw new Error('Error making API call to CoinGecko')
+        throw error
     }
 }

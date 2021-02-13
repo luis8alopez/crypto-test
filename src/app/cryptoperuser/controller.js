@@ -9,13 +9,14 @@ exports.addCoinForFollowUp = async (req, res) => {
 
         return res.status(httpStatus.OK).send({ message: "Coin added" })
     } catch (error) {
-        return res.status(httpStatus.INTERNAL_SERVER_ERROR).send({ message: "Internal server error", error: error })
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).send({ message: "Internal server error", error: error.message })
     }
 }
 
 exports.getTopCrypto = async (req, res) => {
     try {
-        const response = await cryptoPerUser.topCryptos(req.user);
+        query = req.query.top;
+        const response = await cryptoPerUser.topCryptos(req.user, req.query.limit);
 
         if (!response) return res.status(httpStatus.NOT_FOUND).send({ message: 'Unable to get your top crypto coins' })
 
@@ -34,7 +35,7 @@ exports.getAllCoins = async (req, res) => {
 
         return res.status(httpStatus.OK).send({ message: "allCoins", data: response })
     } catch (error) {
-        return res.status(httpStatus.INTERNAL_SERVER_ERROR).send({ message: "Internal server error", error: error })
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).send({ message: "Internal server error", error: error.message })
     }
 
 }

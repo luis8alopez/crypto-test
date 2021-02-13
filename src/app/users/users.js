@@ -13,7 +13,7 @@ exports.createUser = async (payload) => {
             const newUser = new User(payload);
             return await newUser.save();
         } catch (error) {
-            throw new Error("Error: saving to database - password should be 8 characters long and alphanumeric");
+            throw new Error("3");
         }
     } else {
         return;

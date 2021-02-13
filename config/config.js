@@ -4,7 +4,8 @@ dotenv.config();
 const {
     MONGOURI,
     JWT_KEY,
-    JWT_TTL
+    JWT_TTL,
+    API_URL
 } = process.env;
 
 const MONGODB_OPTIONS = { useNewUrlParser: true, useFindAndModify: false, useUnifiedTopology: true, useCreateIndex: true };
@@ -15,5 +16,6 @@ module.exports = {
     MONGODB_OPTIONS,
     MONGOURI,
     JWT_KEY,
-    JWT_TTL
+    JWT_TTL,
+    API_URL
 };

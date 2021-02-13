@@ -1,0 +1,189 @@
+swagger: "2.0"
+info:
+  description: "This is a backend server that exposes some cryptocurrencies services for the technical challenge for Wolox."
+  version: "1.0.0"
+  title: "Swagger cryptoChallenge"
+  termsOfService: "http://swagger.io/terms/"
+  contact:
+    email: "apiteam@swagger.io"
+basePath: "/api/v1/docs"
+tags:
+- name: "User"
+  description: "Everything related to users and login"
+- name: "cryptoPerUser"
+  description: "Everything related to logged in users"
+schemes:
+- "https"
+- "http"
+paths:
+  /login:
+    post:
+      tags:
+      - "User"
+      summary: "Login"
+      description: ""
+      operationId: "addUser"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Login object to obtain JWT"
+        required: true
+        schema:
+          $ref: "#/definitions/User"
+      responses:
+        "405":
+          description: "Invalid input"
+  /:
+    post:
+      tags:
+      - "User"
+      summary: "Creates a new user"
+      description: ""
+      operationId: "createUser"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Creates a new user"
+        required: true
+        schema:
+          $ref: "#/definitions/newUser"
+      responses:
+        "405":
+          description: "Invalid input"
+  /:username/coins/{limit}:
+    get:
+      tags:
+      - "cryptoPerUser"
+      summary: "Returns your top N of cryptocurrencies"
+      description: "Returns your top N of cryptocurrencies"
+      operationId: "getInventory"
+      produces:
+      - "application/json"
+      parameters: 
+      - name: "limit"
+        in: "path"
+        type: integer
+        required: true
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            type: "object"
+            additionalProperties:
+              type: "integer"
+              format: "int32"
+      security:
+      - Authorization: []
+  /:username/coins:
+    post:
+      tags:
+      - "cryptoPerUser"
+      summary: "Adds a new coin for follow up"
+      operationId: "postcoin"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Adds a new coin for follow up"
+        required: true
+        schema:
+          $ref: "#/definitions/newCoin"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            type: "object"
+            additionalProperties:
+              type: "integer"
+              format: "int32"
+      security:
+      - Authorization: []
+      
+  /coins/:
+    get:
+      tags:
+      - "cryptoPerUser"
+      summary: "Returns all coins"
+      description: "Returns all coins"
+      operationId: "getAllCoins"
+      produces:
+      - "application/json"
+      parameters: []
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            type: "object"
+            additionalProperties:
+              type: "integer"
+              format: "int32"
+      security:
+      - Authorization: []
+securityDefinitions:
+  Authorization:
+    type: "apiKey"
+    name: "Authorization"
+    in: "header"
+definitions:
+  newCoin:
+    type: "object"
+    properties:
+      coin:
+        type: "string"
+        description: "Id of a coin to follow"
+  User:
+    type: "object"
+    required:
+    - "username"
+    - "password"
+    properties:
+      username:
+        type: "string"
+      password:
+        type: "string"
+  newUser:
+    type: "object"
+    required:
+    - "name"
+    - "lastname"
+    - "username"
+    - "password"
+    - "preferredCoin"
+    properties:
+      name:
+        type: "string"
+      lastname:
+        type: "string"
+      username:
+        type: "string"
+      password:
+        type: "string"
+      preferredCoin:
+        type: "string"
+        enum:
+        - "usd"
+        - "asr"
+        - "eur"
+  ApiResponse:
+    type: "object"
+    properties:
+      code:
+        type: "integer"
+        format: "int32"
+      type:
+        type: "string"
+      message:
+        type: "string"
+  
+externalDocs:
+  description: "Find out more about Swagger"
+  url: "http://swagger.io"
