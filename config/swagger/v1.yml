@@ -6,7 +6,7 @@ info:
   termsOfService: "http://swagger.io/terms/"
   contact:
     email: "apiteam@swagger.io"
-basePath: "/api"
+basePath: "/api/"
 tags:
 - name: "User"
   description: "Everything related to users and login"
@@ -40,7 +40,7 @@ paths:
           description: "successful operation"
           schema:
             $ref: "#/definitions/responseToken"
-  /users:
+  users:
     post:
       tags:
       - "User"
