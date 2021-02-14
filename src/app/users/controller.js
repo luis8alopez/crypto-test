@@ -1,7 +1,6 @@
 const httpStatus = require('http-status');
 const User = require('./users');
 const { signIn } = require('../services/login');
-const { errorHandler } = require('../handler/errorHandler');
 
 exports.createUser = async (req, res) => {
     try {
@@ -12,8 +11,7 @@ exports.createUser = async (req, res) => {
         return res.status(httpStatus.OK).send({ message: "User created successfully" })
 
     } catch (error) {
-        const { message, code } = await errorHandler(error.message);
-        return res.status(code).send({ message: message })
+        return res.status(error.code).send({ message: error.message })
     }
 }
 

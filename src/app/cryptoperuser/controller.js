@@ -1,20 +1,27 @@
 const httpStatus = require('http-status');
 const cryptoPerUser = require('./criptoperuser');
+const { errorHandler } = require("../../middlewares/errorHandler");
 
 exports.addCoinForFollowUp = async (req, res) => {
     try {
-        const response = await cryptoPerUser.addCoinForFollowUp(req.user, req.body.coin);
+        if (req.user != req.params.username) {
+            throw errorHandler("notAllowed")
+        }
+        const response = await cryptoPerUser.addCoinForFollowUp(req.params.username, req.body.coin);
 
         if (!response) return res.status(httpStatus.NOT_FOUND).send({ message: 'Unable to add coin for follow up' })
 
         return res.status(httpStatus.OK).send({ message: "Coin added" })
     } catch (error) {
-        return res.status(httpStatus.INTERNAL_SERVER_ERROR).send({ message: "Internal server error", error: error.message })
+        return res.status(error.code).send({ message: error.message, error: error.message })
     }
 }
 
 exports.getTopCrypto = async (req, res) => {
     try {
+        if (req.user != req.params.username) {
+            throw errorHandler("notAllowed")
+        }
         query = req.query.top;
         const response = await cryptoPerUser.topCryptos(req.user, req.query.limit);
 
@@ -22,7 +29,7 @@ exports.getTopCrypto = async (req, res) => {
 
         return res.status(httpStatus.OK).send({ message: "Your top crypto", data: response })
     } catch (error) {
-        return res.status(httpStatus.INTERNAL_SERVER_ERROR).send({ message: "Internal server error", error: error.message })
+        return res.status(error.code).send({ message: error.message, error: error.message })
     }
 
 }
@@ -35,7 +42,7 @@ exports.getAllCoins = async (req, res) => {
 
         return res.status(httpStatus.OK).send({ message: "allCoins", data: response })
     } catch (error) {
-        return res.status(httpStatus.INTERNAL_SERVER_ERROR).send({ message: "Internal server error", error: error.message })
+        return res.status(error.code).send({ message: error.message, error: error.message })
     }
 
 }

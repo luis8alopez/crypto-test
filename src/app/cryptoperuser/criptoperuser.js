@@ -1,18 +1,20 @@
 const cryptoPerUser = require('./model');
+// const httpStatus = require('http-status');
 const User = require('../users/model');
 const { API_URL } = require('../../../config/config');
 const axios = require('axios');
+const { errorHandler } = require("../../middlewares/errorHandler");
 
 exports.addCoinForFollowUp = async (username, coin) => {
 
     try {
         const response = await axios.get(`${API_URL}/coins/${coin}`);
         if (!response.data) {
-            throw new Error("Unable to find coin");
+            throw errorHandler("database")
         }
         const user = await User.findOne({ username: username });
         if (!user) {
-            throw new Error("Unable to find your user")
+            throw errorHandler("database")
         }
         const cryptoUser = await cryptoPerUser.findOne({ User: user._id });
         if (!cryptoUser) {
@@ -21,11 +23,14 @@ exports.addCoinForFollowUp = async (username, coin) => {
         } else {
             const res = await cryptoUser.updateOne({ $addToSet: { idCrypto: coin } })
             if (res.nModified === 0) {
-                throw new Error("You already follow this coin");
+                throw errorHandler("followCoin")
             }
             return res;
         }
     } catch (error) {
+        if (!error.code) {
+            throw errorHandler("database")
+        }
         throw error;
     }
 }
@@ -37,11 +42,11 @@ exports.topCryptos = async (username, limit) => {
         const cryptoUser = await cryptoPerUser.findOne({ User: user._id });
 
         if (!cryptoUser) {
-            throw new Error("Accessing the database");
+            throw errorHandler("database")
         }
 
         if (limit > 25) {
-            throw new Error("Top limit reached");
+            throw errorHandler("limit");
         }
 
         const coinInfo = await Promise.all(cryptoUser.idCrypto.map(async (element) => {
@@ -62,6 +67,9 @@ exports.topCryptos = async (username, limit) => {
         }));
         return coinInfo.sort((a, b) => (a.ars > b.ars) ? -1 : 1);
     } catch (error) {
+        if (!error.code) {
+            throw errorHandler("api");
+        }
         throw error
     }
 }
@@ -83,6 +91,6 @@ exports.getAllCoins = async (username, coin) => {
             return { name, symbol, image, current_price, last_updated };
         });
     } catch (error) {
-        throw error
+        throw errorHandler("api");
     }
 }

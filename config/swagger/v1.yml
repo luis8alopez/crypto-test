@@ -6,17 +6,16 @@ info:
   termsOfService: "http://swagger.io/terms/"
   contact:
     email: "apiteam@swagger.io"
-basePath: "/api/v1/docs"
+basePath: "/api"
 tags:
 - name: "User"
   description: "Everything related to users and login"
 - name: "cryptoPerUser"
   description: "Everything related to logged in users"
 schemes:
-- "https"
 - "http"
 paths:
-  /login:
+  users/login:
     post:
       tags:
       - "User"
@@ -35,14 +34,18 @@ paths:
         schema:
           $ref: "#/definitions/User"
       responses:
-        "405":
-          description: "Invalid input"
-  /:
+        "500":
+          description: "Internal server error"
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/responseToken"
+  /users:
     post:
       tags:
       - "User"
       summary: "Creates a new user"
-      description: ""
+      description: "Creates a new user"
       operationId: "createUser"
       consumes:
       - "application/json"
@@ -56,33 +59,41 @@ paths:
         schema:
           $ref: "#/definitions/newUser"
       responses:
-        "405":
-          description: "Invalid input"
-  /:username/coins/{limit}:
+        "404":
+          description: "Not able to create user or user already exists"
+        "400":
+          description: "Bad request"
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/responseCreateUser"
+  crypto/:username/coins:
     get:
       tags:
       - "cryptoPerUser"
       summary: "Returns your top N of cryptocurrencies"
-      description: "Returns your top N of cryptocurrencies"
+      description: "Returns the top N of cryptocurrencies that you have followed"
       operationId: "getInventory"
       produces:
       - "application/json"
       parameters: 
       - name: "limit"
-        in: "path"
+        in: "query"
         type: integer
         required: true
       responses:
         "200":
-          description: "successful operation"
+          description: "Operation successful"
           schema:
-            type: "object"
-            additionalProperties:
-              type: "integer"
-              format: "int32"
+            $ref: "#/definitions/topCrypto"
+        "403":
+          description: "You don't have permission to access this resource"
+        "500":
+          description: "Unable to perform database action"
+        "400":
+          description: "Unable to perform operation"
       security:
       - Authorization: []
-  /:username/coins:
     post:
       tags:
       - "cryptoPerUser"
@@ -99,16 +110,19 @@ paths:
           $ref: "#/definitions/newCoin"
       responses:
         "200":
-          description: "successful operation"
+          description: "Operation successful"
           schema:
-            type: "object"
-            additionalProperties:
-              type: "integer"
-              format: "int32"
+            $ref: "#/definitions/coinAdded"
+        "403":
+          description: "You don't have permission to access this resource"
+        "500":
+          description: "There was a problem accessing the database"
+        "400":
+          description: "You already follow this coin"
       security:
       - Authorization: []
       
-  /coins/:
+  crypto/coins:
     get:
       tags:
       - "cryptoPerUser"
@@ -118,14 +132,15 @@ paths:
       produces:
       - "application/json"
       parameters: []
+      headers:
+        Access-Control-Allow-Origin: "*"
       responses:
         "200":
           description: "successful operation"
           schema:
-            type: "object"
-            additionalProperties:
-              type: "integer"
-              format: "int32"
+            $ref: "#/definitions/getCoins"
+        "400":
+          description: "Bad request made to the API"
       security:
       - Authorization: []
 securityDefinitions:
@@ -183,6 +198,86 @@ definitions:
         type: "string"
       message:
         type: "string"
+  responseToken:
+    type: "object"
+    properties:
+      message:
+        type: "string"
+      token:
+        type: "string"
+  responseCreateUser:
+    type: "object"
+    properties:
+      message:
+        type: "string"
+  topCrypto:
+    type: "object"
+    properties:
+      message:
+        type: "string"
+      data:
+        type: "array"
+        xml:
+          name: "data"
+          wrapped: true
+        items:
+          $ref: "#/definitions/data"
+  data:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      symbol:
+        type: "string"
+      thumb:
+        type: "string"
+      ars:
+        type: "integer"
+        format: "int32"
+      eur:
+        type: "integer"
+        format: "int32"
+      usd:
+        type: "integer"
+        format: "int32"
+      last_updated:
+        type: "string"
+    xml:
+      name: "data"
+  coinAdded:
+    type: "object"
+    properties:
+      message:
+        type: "string"
+  allCoins:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      symbol:
+        type: "string"
+      image:
+        type: "string"
+      current_price:
+        type: "integer"
+        format: "int32"
+      last_updated:
+        type: "string"
+    xml:
+      name: "allCoins"
+  getCoins:
+    type: "object"
+    properties:
+      message:
+        type: "string"
+      data:
+        type: "array"
+        xml:
+          name: "allCoins"
+          wrapped: true
+        items:
+          $ref: "#/definitions/allCoins"
+  
   
 externalDocs:
   description: "Find out more about Swagger"
