@@ -1,12 +1,12 @@
 swagger: "2.0"
 info:
-  description: "This is a backend server that exposes some cryptocurrencies services for the technical challenge for Wolox."
+  description: "This is a backend server that exposes some cryptocurrencies services for the technical challenge for Wolox appliance."
   version: "1.0.0"
   title: "Swagger cryptoChallenge"
   termsOfService: "http://swagger.io/terms/"
   contact:
     email: "apiteam@swagger.io"
-basePath: "/api/"
+basePath: "/api"
 tags:
 - name: "User"
   description: "Everything related to users and login"
@@ -15,13 +15,13 @@ tags:
 schemes:
 - "http"
 paths:
-  users/login:
+  /users/login:
     post:
       tags:
       - "User"
       summary: "Login"
-      description: ""
-      operationId: "addUser"
+      description: "Service that allows you to obtain a JWT to access other services"
+      operationId: "login"
       consumes:
       - "application/json"
       produces:
@@ -40,7 +40,7 @@ paths:
           description: "successful operation"
           schema:
             $ref: "#/definitions/responseToken"
-  users:
+  /users:
     post:
       tags:
       - "User"
@@ -67,20 +67,25 @@ paths:
           description: "successful operation"
           schema:
             $ref: "#/definitions/responseCreateUser"
-  crypto/:username/coins:
+  /crypto/{username}/coins:
     get:
       tags:
       - "cryptoPerUser"
       summary: "Returns your top N of cryptocurrencies"
       description: "Returns the top N of cryptocurrencies that you have followed"
-      operationId: "getInventory"
+      operationId: "topCrypto"
       produces:
       - "application/json"
       parameters: 
       - name: "limit"
         in: "query"
         type: integer
-        required: true
+        default: 22
+      - name: "username"
+        in: "path"
+        type: "string"
+        default: "luis8alopez"
+        description: "Must be the same user that logged in"
       responses:
         "200":
           description: "Operation successful"
@@ -102,6 +107,11 @@ paths:
       produces:
       - "application/json"
       parameters:
+      - name: "username"
+        in: "path"
+        type: "string"
+        default: "luis8alopez"
+        description: "Must be the same user that logged in"
       - in: "body"
         name: "body"
         description: "Adds a new coin for follow up"
@@ -122,7 +132,7 @@ paths:
       security:
       - Authorization: []
       
-  crypto/coins:
+  /crypto/coins:
     get:
       tags:
       - "cryptoPerUser"
@@ -163,8 +173,10 @@ definitions:
     properties:
       username:
         type: "string"
+        default: "luis8alopez"
       password:
         type: "string"
+        default: "luis"
   newUser:
     type: "object"
     required:

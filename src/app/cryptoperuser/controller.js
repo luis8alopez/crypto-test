@@ -44,5 +44,4 @@ exports.getAllCoins = async (req, res) => {
     } catch (error) {
         return res.status(error.code).send({ message: error.message, error: error.message })
     }
-
 }

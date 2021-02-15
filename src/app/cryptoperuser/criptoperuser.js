@@ -4,6 +4,7 @@ const User = require('../users/model');
 const { API_URL } = require('../../../config/config');
 const axios = require('axios');
 const { errorHandler } = require("../../middlewares/errorHandler");
+const { coingecko } = require('../services/coingecko');
 
 exports.addCoinForFollowUp = async (username, coin) => {
 
@@ -50,18 +51,15 @@ exports.topCryptos = async (username, limit) => {
         }
 
         const coinInfo = await Promise.all(cryptoUser.idCrypto.map(async (element) => {
-            const response = await axios.get(`${API_URL}/coins/${element}`, {
-                params: {
-                    tickers: false,
-                    market_data: true,
-                    community_data: false,
-                    developer_data: false,
-                    sparkline: false
-                }
-            });
+            const params = {
+                tickers: false, market_data: true, community_data: false, developer_data: false, sparkline: false
+            };
+            const response = await coingecko(null, params, element);
+
             const {
                 name, symbol, image: { thumb }, market_data: { current_price }, last_updated
             } = response.data;
+
             const { ars, eur, usd } = current_price;
             return { name, symbol, thumb, ars, eur, usd, last_updated }
         }));
@@ -77,14 +75,10 @@ exports.topCryptos = async (username, limit) => {
 exports.getAllCoins = async (username, coin) => {
 
     try {
-        const response = await axios.get(`${API_URL}/coins/markets`, {
-            params: {
-                vs_currency: coin,
-                order: "market_cap_desc",
-                per_page: 100,
-                sparkline: false
-            }
-        });
+        const params = {
+            vs_currency: coin, order: "market_cap_desc", per_page: 100, sparkline: false
+        }
+        const response = await coingecko("markets", params, null);
 
         return response.data.map(element => {
             const { name, symbol, image, current_price, last_updated } = element;

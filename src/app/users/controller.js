@@ -27,3 +27,12 @@ exports.signIn = async (req, res) => {
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).send({ message: "Internal server error", error: error.message })
     }
 }
+
+exports.deleteUser = async (req, res) => {
+    try {
+        const user = User.deleteUser(req.params.username);
+        res.status(httpStatus.OK).send(user);
+    } catch (error) {
+        res.status(httpStatus.INTERNAL_SERVER_ERROR).send({ message: error.message })
+    }
+}

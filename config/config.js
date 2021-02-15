@@ -5,7 +5,8 @@ const {
     MONGOURI,
     JWT_KEY,
     JWT_TTL,
-    API_URL
+    API_URL,
+    NODE_ENV
 } = process.env;
 
 const MONGODB_OPTIONS = { useNewUrlParser: true, useFindAndModify: false, useUnifiedTopology: true, useCreateIndex: true };
@@ -17,5 +18,6 @@ module.exports = {
     MONGOURI,
     JWT_KEY,
     JWT_TTL,
-    API_URL
+    API_URL,
+    NODE_ENV
 };
