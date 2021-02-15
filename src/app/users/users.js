@@ -23,9 +23,7 @@ exports.createUser = async (payload) => {
 exports.deleteUser = (username) => {
     try {
         const user = User.findOneAndDelete({ username: username });
-        console.log("El delete trae ", user);
     } catch (error) {
         console.log("error ", error);
     }
-
 }

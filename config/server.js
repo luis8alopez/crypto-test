@@ -19,14 +19,10 @@ const {
     NODE_ENV
 } = require('./config');
 
-//NODE_ENV = process.env.NODE_ENV;
-
 mongoose.connect(MONGOURI, MONGODB_OPTIONS);
 const conn = mongoose.connection;
 conn.once('open', () => { console.log('Mongo Atlas Connected'); });
 conn.on('error', (err) => { console.log('Mongo Atlas connection error: ', err); });
-
-// const swaggerDocument = YAML.load(`${__dirname}/swagger/v1.yml`);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -38,6 +34,4 @@ if (NODE_ENV != 'test') {
     swaggerDocument = YAML.load(`${__dirname}/swagger/v1.yml`);
     app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 }
-//app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
 module.exports = app;
