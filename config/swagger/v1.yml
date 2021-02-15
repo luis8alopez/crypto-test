@@ -14,6 +14,7 @@ tags:
   description: "Everything related to logged in users"
 schemes:
 - "http"
+- "https"
 paths:
   /users/login:
     post:
