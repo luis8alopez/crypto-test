@@ -45,3 +45,17 @@ exports.getAllCoins = async (req, res) => {
         return res.status(error.code).send({ message: error.message, error: error.message })
     }
 }
+
+exports.meliController = async (req,res) => {
+    console.log('Body: ', req.body);
+    console.log('Params: ', req.params);
+
+    return res.status(200).send({message:'ok'});
+}
+
+exports.meliAuth = async (req, res) => {
+    console.log('Body meliAuth: ', req.body);
+    console.log('Params meliAuth: ', req.params);
+
+    return res.status(200).send({message:'token'});
+}
